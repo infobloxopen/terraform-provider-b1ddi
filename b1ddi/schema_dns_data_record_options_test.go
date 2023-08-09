@@ -17,7 +17,9 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 			input: map[string]interface{}{
 				"create_ptr": "asda",
 			},
-			output:      nil,
+			output: map[string]interface{}{
+				"create_ptr": "asda",
+			},
 			recordType:  "A",
 			errExpected: true,
 		},
@@ -26,7 +28,22 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 				"create_ptr": "true",
 				"check_rmz":  "lsdclksj",
 			},
-			output:      nil,
+			output: map[string]interface{}{
+				"create_ptr": true,
+				"check_rmz":  "lsdclksj",
+			},
+			recordType:  "A",
+			errExpected: true,
+		},
+		"Invalid Options - Bad check_rmz and create-ptr value": {
+			input: map[string]interface{}{
+				"create_ptr": "true12",
+				"check_rmz":  "lsdclksj",
+			},
+			output: map[string]interface{}{
+				"create_ptr": "true12",
+				"check_rmz":  "lsdclksj",
+			},
 			recordType:  "A",
 			errExpected: true,
 		},
@@ -67,14 +84,9 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 
 	for tn, tc := range testData {
 		t.Run(tn, func(t *testing.T) {
-			options, err := updateDataRecordOptions(tc.input, tc.recordType)
-			if tc.errExpected {
-				assert.Error(t, err)
-				assert.Nil(t, options)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.output, options)
-			}
+			options, diags := updateDataRecordOptions(tc.input, tc.recordType)
+			assert.Equal(t, tc.errExpected, diags.HasError())
+			assert.Equal(t, tc.output, options)
 		})
 	}
 }

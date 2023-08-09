@@ -3,10 +3,8 @@ package b1ddi
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -14,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
-
-	"terraform-provider-b1ddi/b1ddi/util"
 )
 
 const (
@@ -24,7 +20,7 @@ const (
 	errRecordNotFound                = "response status code indicates client error (status 404): \n{\"error\":[{\"message\":\"record not found\"}]}"
 )
 
-func Provider(terraformVersion, commit string) *schema.Provider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"host": {
@@ -45,18 +41,6 @@ func Provider(terraformVersion, commit string) *schema.Provider {
 				Optional:    true,
 				Default:     "api/ddi/v1",
 				Description: "The base path is to indicate the API version and the product name.",
-			},
-			"provider_version": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     terraformVersion,
-				Description: "Terraform provider version, used in the API call headers",
-			},
-			"provider_commit_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     commit,
-				Description: "Terraform provider version commit ID, used in the API call headers",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -96,8 +80,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	host := d.Get("host").(string)
 	apiKey := d.Get("api_key").(string)
 	basePath := d.Get("base_path").(string)
-	version := d.Get("provider_version").(string)
-	commit := d.Get("provider_commit_id").(string)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -118,13 +100,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		return nil, diags
 	}
 
-	httpClient := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: newTransport(version, commit),
-	}
 	// create the transport
-	transport := httptransport.NewWithClient(
-		host, basePath, nil, httpClient,
+	transport := httptransport.New(
+		host, basePath, nil,
 	)
 
 	// Create default auth header for all API requests
@@ -165,33 +143,4 @@ func dataSourceSchemaFromResource(resource func() *schema.Resource) *schema.Reso
 	return &schema.Resource{
 		Schema: resultSchema,
 	}
-}
-
-func newTransport(version, commit string) *customTransport {
-	return &customTransport{
-		originalTransport: http.DefaultTransport,
-		terraformVersion:  version,
-		terraformCommitID: commit,
-	}
-}
-
-type customTransport struct {
-	originalTransport http.RoundTripper
-	terraformVersion  string
-	terraformCommitID string
-}
-
-func (c *customTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	r.Header.Add("x-infoblox-client", fmt.Sprintf("terraform/v%s#%s", c.terraformVersion, c.terraformCommitID))
-	goVersion, err := util.GetGoSDKBuild()
-	if err == nil {
-		r.Header.Add("x-infoblox-sdk", fmt.Sprintf("golang-sdk/v%s", goVersion))
-	}
-
-	resp, err := c.originalTransport.RoundTrip(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
 }

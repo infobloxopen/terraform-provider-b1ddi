@@ -30,7 +30,10 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"preference": "1qw",
 				"exchange":   "mail.infoblox.com",
 			},
-			output:      nil,
+			output: map[string]interface{}{
+				"preference": "1qw",
+				"exchange":   "mail.infoblox.com",
+			},
 			recordType:  "MX",
 			errExpected: true,
 		},
@@ -54,7 +57,11 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"tag":   "issue",
 				"value": "infoblox",
 			},
-			output:      nil,
+			output: map[string]interface{}{
+				"flags": "0qq",
+				"tag":   "issue",
+				"value": "infoblox",
+			},
 			recordType:  "CAA",
 			errExpected: true,
 		},
@@ -81,7 +88,12 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"target":   "infoblox",
 				"weight":   "100",
 			},
-			output:      nil,
+			output: map[string]interface{}{
+				"port":     "1234qq",
+				"priority": 1,
+				"target":   "infoblox",
+				"weight":   100,
+			},
 			recordType:  "SRV",
 			errExpected: true,
 		},
@@ -101,7 +113,9 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 			input: map[string]interface{}{
 				"serial": "1234qq",
 			},
-			output:      nil,
+			output: map[string]interface{}{
+				"serial": "1234qq",
+			},
 			recordType:  "SOA",
 			errExpected: true,
 		},
@@ -110,13 +124,8 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 	for tn, tc := range testData {
 		t.Run(tn, func(t *testing.T) {
 			output, err := updateDataRecordRData(tc.input, tc.recordType)
-			if tc.errExpected {
-				assert.Error(t, err)
-				assert.Nil(t, output)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.output, output)
-			}
+			assert.Equal(t, tc.errExpected, err.HasError())
+			assert.Equal(t, tc.output, output)
 		})
 	}
 }

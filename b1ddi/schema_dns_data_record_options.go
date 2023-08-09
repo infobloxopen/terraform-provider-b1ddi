@@ -1,35 +1,43 @@
 package b1ddi
 
 import (
-	"terraform-provider-b1ddi/b1ddi/util"
+	"errors"
+	"fmt"
+	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 /*
 	updateDataRecordOptions helps convert string options(supposed to be boolean) values into boolean
     Introduced to fix issues where terraform converts boolean values to string in rendered config
 */
-func updateDataRecordOptions(d interface{}, recordType string) (interface{}, error) {
+func updateDataRecordOptions(d interface{}, recordType string) (interface{}, diag.Diagnostics) {
 	if d == nil {
 		return nil, nil
 	}
 	in := d.(map[string]interface{})
+	var diags diag.Diagnostics
 	switch recordType {
 	case "A", "AAAA":
-		createPtr, exists, err := util.ToBool(in, "create_ptr")
-		if err != nil {
-			return nil, err
+		if val, ok := in["create_ptr"]; ok {
+			b, err := strconv.ParseBool(val.(string))
+			if err != nil {
+				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "create_ptr", err)))...)
+			} else {
+				in["create_ptr"] = b
+			}
 		}
-		if exists {
-			in["create_ptr"] = createPtr
+		if val, ok := in["check_rmz"]; ok {
+			b, err := strconv.ParseBool(val.(string))
+			if err != nil {
+				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "check_rmz", err)))...)
+			} else {
+				in["check_rmz"] = b
+			}
 		}
-		checkRmz, exists, err := util.ToBool(in, "check_rmz")
-		if err != nil {
-			return nil, err
-		}
-		if exists {
-			in["check_rmz"] = checkRmz
-		}
+
 	}
 
-	return in, nil
+	return in, diags
 }

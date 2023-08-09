@@ -3,7 +3,7 @@ HOSTNAME=github.com
 NAMESPACE=infobloxopen
 NAME=b1ddi
 BINARY=terraform-provider-${NAME}
-VERSION=0.1.3
+VERSION=0.1
 OS_ARCH=linux_amd64
 
 default: install

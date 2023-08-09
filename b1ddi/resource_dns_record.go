@@ -366,13 +366,13 @@ func resourceDataRecord() *schema.Resource {
 func resourceDataRecordCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*b1ddiclient.Client)
 
-	opts, err := updateDataRecordOptions(d.Get("options"), d.Get("type").(string))
-	if err != nil {
-		return diag.FromErr(err)
+	opts, diags := updateDataRecordOptions(d.Get("options"), d.Get("type").(string))
+	if diags.HasError() {
+		return diags
 	}
-	rData, err := updateDataRecordRData(d.Get("rdata"), d.Get("type").(string))
-	if err != nil {
-		return diag.FromErr(err)
+	rData, diags := updateDataRecordRData(d.Get("rdata"), d.Get("type").(string))
+	if diags.HasError() {
+		return diags
 	}
 
 	r := &models.DataRecord{
@@ -515,13 +515,13 @@ func resourceDataRecordRead(ctx context.Context, d *schema.ResourceData, m inter
 func resourceDataRecordUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*b1ddiclient.Client)
 
-	opts, err := updateDataRecordOptions(d.Get("options"), d.Get("type").(string))
-	if err != nil {
-		return diag.FromErr(err)
+	opts, diags := updateDataRecordOptions(d.Get("options"), d.Get("type").(string))
+	if diags.HasError() {
+		return diags
 	}
-	rData, err := updateDataRecordRData(d.Get("rdata"), d.Get("type").(string))
-	if err != nil {
-		return diag.FromErr(err)
+	rData, diags := updateDataRecordRData(d.Get("rdata"), d.Get("type").(string))
+	if diags.HasError() {
+		return diags
 	}
 
 	if d.HasChange("type") {
