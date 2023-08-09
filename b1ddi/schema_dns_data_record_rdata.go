@@ -1,8 +1,6 @@
 package b1ddi
 
 import (
-	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -26,81 +24,52 @@ func updateDataRecordRData(d interface{}, recordType string) (interface{}, diag.
 	in := d.(map[string]interface{})
 	switch recordType {
 	case "CAA":
-		if val, ok := in["flags"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "flags", err)))...)
-			} else {
-				in["flags"] = i
-			}
-		}
+		diags = inPlaceUpdater(in, "flags")
 
 	case "MX":
-		if val, ok := in["preference"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "preference", err)))...)
-			} else {
-				in["preference"] = i
-			}
-		}
+		diags = inPlaceUpdater(in, "preference")
 
 	case "NAPTR":
-		if val, ok := in["order"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "order", err)))...)
-			} else {
-				in["order"] = i
-			}
+		diagErr := inPlaceUpdater(in, "order")
+		if diagErr != nil {
+			diags = append(diags, diagErr...)
 		}
-		if val, ok := in["preference"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "preference", err)))...)
-			} else {
-				in["preference"] = i
-			}
+		diagErr = inPlaceUpdater(in, "preference")
+		if diagErr != nil {
+			diags = append(diags, diagErr...)
 		}
 
 	case "SOA":
-		if val, ok := in["serial"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "serial", err)))...)
-			} else {
-				in["serial"] = i
-			}
-		}
+		diags = inPlaceUpdater(in, "serial")
 
 	case "SRV":
-		if val, ok := in["port"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "port", err)))...)
-			} else {
-				in["port"] = i
-			}
+		diagErr := inPlaceUpdater(in, "port")
+		if diagErr != nil {
+			diags = append(diags, diagErr...)
 		}
-		if val, ok := in["priority"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "priority", err)))...)
-			} else {
-				in["priority"] = i
-			}
+		diagErr = inPlaceUpdater(in, "priority")
+		if diagErr != nil {
+			diags = append(diags, diagErr...)
 		}
-		if val, ok := in["weight"]; ok {
-			i, err := strconv.Atoi(val.(string))
-			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "weight", err)))...)
-			} else {
-				in["weight"] = i
-			}
+		diagErr = inPlaceUpdater(in, "weight")
+		if diagErr != nil {
+			diags = append(diags, diagErr...)
 		}
 	default:
 		return d, nil
 	}
 
 	return in, diags
+}
+
+func inPlaceUpdater(in map[string]interface{}, key string) diag.Diagnostics {
+	if val, ok := in[key]; ok {
+		i, err := strconv.Atoi(val.(string))
+		if err != nil {
+			return diag.Errorf(ParseError, key, err)
+		} else {
+			in[key] = i
+		}
+	}
+	return nil
 }

@@ -8,10 +8,10 @@ import (
 
 func Test_UpdateDataRecordOptions(t *testing.T) {
 	testData := map[string]struct {
-		input       map[string]interface{}
-		output      map[string]interface{}
-		recordType  string
-		errExpected bool
+		input      map[string]interface{}
+		output     map[string]interface{}
+		recordType string
+		errCount   int
 	}{
 		"Invalid Options - Bad create_ptr value": {
 			input: map[string]interface{}{
@@ -20,8 +20,8 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 			output: map[string]interface{}{
 				"create_ptr": "asda",
 			},
-			recordType:  "A",
-			errExpected: true,
+			recordType: "A",
+			errCount:   1,
 		},
 		"Invalid Options - Bad check_rmz value": {
 			input: map[string]interface{}{
@@ -32,10 +32,10 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 				"create_ptr": true,
 				"check_rmz":  "lsdclksj",
 			},
-			recordType:  "A",
-			errExpected: true,
+			recordType: "A",
+			errCount:   1,
 		},
-		"Invalid Options - Bad check_rmz and create-ptr value": {
+		"Invalid Options - Bad check_rmz and create_ptr value": {
 			input: map[string]interface{}{
 				"create_ptr": "true12",
 				"check_rmz":  "lsdclksj",
@@ -44,8 +44,8 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 				"create_ptr": "true12",
 				"check_rmz":  "lsdclksj",
 			},
-			recordType:  "A",
-			errExpected: true,
+			recordType: "A",
+			errCount:   2,
 		},
 		"Valid Options": {
 			input: map[string]interface{}{
@@ -54,8 +54,8 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 			output: map[string]interface{}{
 				"create_ptr": true,
 			},
-			recordType:  "A",
-			errExpected: false,
+			recordType: "A",
+			errCount:   0,
 		},
 		"Valid Options - 1": {
 			input: map[string]interface{}{
@@ -66,8 +66,8 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 				"create_ptr": true,
 				"check_rmz":  true,
 			},
-			recordType:  "A",
-			errExpected: false,
+			recordType: "A",
+			errCount:   0,
 		},
 		"Valid Options - 2": {
 			// Fake message w/o the optional message to test the integrity of the code
@@ -77,15 +77,15 @@ func Test_UpdateDataRecordOptions(t *testing.T) {
 			output: map[string]interface{}{
 				"address": "10.0.0.1",
 			},
-			recordType:  "A",
-			errExpected: false,
+			recordType: "A",
+			errCount:   0,
 		},
 	}
 
 	for tn, tc := range testData {
 		t.Run(tn, func(t *testing.T) {
 			options, diags := updateDataRecordOptions(tc.input, tc.recordType)
-			assert.Equal(t, tc.errExpected, diags.HasError())
+			assert.Equal(t, tc.errCount, len(diags))
 			assert.Equal(t, tc.output, options)
 		})
 	}

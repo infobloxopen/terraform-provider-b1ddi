@@ -109,9 +109,9 @@ func TestAccResourceDnsRecord_full_config(t *testing.T) {
 						comment = "This DNS Record is created by the terraform provider acceptance test"
 						disabled = true
 						name_in_zone = "tf_acc_test_a_record"
-						#options = {
-						#	"create_ptr" = "true"
-						#}
+						options = {
+							"create_ptr" = "true"
+						}
 						rdata = {
 							"address" = "192.168.1.15"
 						}
@@ -139,7 +139,7 @@ func TestAccResourceDnsRecord_full_config(t *testing.T) {
 					// ToDo Add check for custom inheritance_sources
 					resource.TestCheckNoResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "inheritance_sources.#"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "name_in_zone", "tf_acc_test_a_record"),
-					resource.TestCheckNoResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "options"),
+					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "options.create_ptr", "true"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "rdata.address", "192.168.1.15"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "source.0", "STATIC"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "tags.%", "1"),
@@ -189,9 +189,9 @@ func TestAccResourceDnsRecord_Update(t *testing.T) {
 						comment = "This DNS Record is created by the terraform provider acceptance test"
 						disabled = true
 						name_in_zone = "tf_acc_test_a_record"
-						#options = {
-						#	"create_ptr" = "true"
-						#}
+						options = {
+							"create_ptr" = "true"
+						}
 						rdata = {
 							"address" = "192.168.1.15"
 						}
@@ -219,7 +219,7 @@ func TestAccResourceDnsRecord_Update(t *testing.T) {
 					// ToDo Add check for custom inheritance_sources
 					resource.TestCheckNoResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "inheritance_sources.#"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "name_in_zone", "tf_acc_test_a_record"),
-					resource.TestCheckNoResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "options.%"),
+					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "options.create_ptr", "true"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "rdata.address", "192.168.1.15"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "source.0", "STATIC"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_record", "tags.%", "1"),

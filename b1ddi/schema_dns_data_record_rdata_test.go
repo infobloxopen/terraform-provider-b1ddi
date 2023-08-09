@@ -8,10 +8,10 @@ import (
 
 func Test_UpdateDataRecordRData(t *testing.T) {
 	testData := map[string]struct {
-		input       map[string]interface{}
-		output      map[string]interface{}
-		recordType  string
-		errExpected bool
+		input      map[string]interface{}
+		output     map[string]interface{}
+		recordType string
+		errCount   int
 	}{
 		"Valid Rdata - MX Record": {
 			input: map[string]interface{}{
@@ -22,8 +22,8 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"preference": 1,
 				"exchange":   "mail.infoblox.com",
 			},
-			recordType:  "MX",
-			errExpected: false,
+			recordType: "MX",
+			errCount:   0,
 		},
 		"Invalid Rdata - MX Record": {
 			input: map[string]interface{}{
@@ -34,8 +34,8 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"preference": "1qw",
 				"exchange":   "mail.infoblox.com",
 			},
-			recordType:  "MX",
-			errExpected: true,
+			recordType: "MX",
+			errCount:   1,
 		},
 		"Valid Rdata - CAA Record": {
 			input: map[string]interface{}{
@@ -48,8 +48,8 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"tag":   "issue",
 				"value": "infoblox",
 			},
-			recordType:  "CAA",
-			errExpected: false,
+			recordType: "CAA",
+			errCount:   0,
 		},
 		"Invalid Rdata - CAA Record": {
 			input: map[string]interface{}{
@@ -62,8 +62,8 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"tag":   "issue",
 				"value": "infoblox",
 			},
-			recordType:  "CAA",
-			errExpected: true,
+			recordType: "CAA",
+			errCount:   1,
 		},
 		"Valid Rdata - SRV Record": {
 			input: map[string]interface{}{
@@ -78,24 +78,24 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"target":   "infoblox",
 				"weight":   100,
 			},
-			recordType:  "SRV",
-			errExpected: false,
+			recordType: "SRV",
+			errCount:   0,
 		},
 		"Invalid Rdata - SRV Record": {
 			input: map[string]interface{}{
 				"port":     "1234qq",
-				"priority": "1",
+				"priority": "1wwe",
 				"target":   "infoblox",
-				"weight":   "100",
+				"weight":   "1wqq00",
 			},
 			output: map[string]interface{}{
 				"port":     "1234qq",
-				"priority": 1,
+				"priority": "1wwe",
 				"target":   "infoblox",
-				"weight":   100,
+				"weight":   "1wqq00",
 			},
-			recordType:  "SRV",
-			errExpected: true,
+			recordType: "SRV",
+			errCount:   3,
 		},
 		"Valid Rdata - SOA Record": {
 			input: map[string]interface{}{
@@ -106,8 +106,8 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 				"serial": 100,
 				"mname":  "infoblox.com",
 			},
-			recordType:  "SOA",
-			errExpected: false,
+			recordType: "SOA",
+			errCount:   0,
 		},
 		"Invalid Rdata - SOA Record": {
 			input: map[string]interface{}{
@@ -116,15 +116,15 @@ func Test_UpdateDataRecordRData(t *testing.T) {
 			output: map[string]interface{}{
 				"serial": "1234qq",
 			},
-			recordType:  "SOA",
-			errExpected: true,
+			recordType: "SOA",
+			errCount:   1,
 		},
 	}
 
 	for tn, tc := range testData {
 		t.Run(tn, func(t *testing.T) {
-			output, err := updateDataRecordRData(tc.input, tc.recordType)
-			assert.Equal(t, tc.errExpected, err.HasError())
+			output, diagErr := updateDataRecordRData(tc.input, tc.recordType)
+			assert.Equal(t, tc.errCount, len(diagErr))
 			assert.Equal(t, tc.output, output)
 		})
 	}

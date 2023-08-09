@@ -1,8 +1,6 @@
 package b1ddi
 
 import (
-	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -23,7 +21,7 @@ func updateDataRecordOptions(d interface{}, recordType string) (interface{}, dia
 		if val, ok := in["create_ptr"]; ok {
 			b, err := strconv.ParseBool(val.(string))
 			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "create_ptr", err)))...)
+				diags = append(diags, diag.Errorf(ParseError, "create_ptr", err)...)
 			} else {
 				in["create_ptr"] = b
 			}
@@ -31,12 +29,11 @@ func updateDataRecordOptions(d interface{}, recordType string) (interface{}, dia
 		if val, ok := in["check_rmz"]; ok {
 			b, err := strconv.ParseBool(val.(string))
 			if err != nil {
-				diags = append(diags, diag.FromErr(errors.New(fmt.Sprintf(ParseError, "check_rmz", err)))...)
+				diags = append(diags, diag.Errorf(ParseError, "check_rmz", err)...)
 			} else {
 				in["check_rmz"] = b
 			}
 		}
-
 	}
 
 	return in, diags
