@@ -203,21 +203,6 @@ func TestAccResourceDnsRecord_Update(t *testing.T) {
 						ttl = 24400
 						type = "A"
 						zone = b1ddi_dns_auth_zone.tf_acc_test_auth_zone.id
-					}
-					resource "b1ddi_dns_record" "tf_acc_test_dns_srv_record" {
-						comment = "This DNS Record is created by the terraform provider acceptance test"
-						disabled = true
-						name_in_zone = "tf_acc_test_srv_record"
-						rdata = {
-							"weight" = 100
-							"port" = 2100	
-						}
-						tags = {
-							TestType = "Acceptance"
-						}
-						ttl = 24400
-						type = "SRV"
-						zone = b1ddi_dns_auth_zone.tf_acc_test_auth_zone.id
 					}`, testAccReadDnsHost(t),
 				),
 				Check: resource.ComposeAggregateTestCheckFunc(
