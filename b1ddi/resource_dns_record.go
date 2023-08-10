@@ -515,10 +515,6 @@ func resourceDataRecordRead(ctx context.Context, d *schema.ResourceData, m inter
 func resourceDataRecordUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*b1ddiclient.Client)
 
-	opts, diags := updateDataRecordOptions(d.Get("options"), d.Get("type").(string))
-	if diags.HasError() {
-		return diags
-	}
 	rData, diags := updateDataRecordRData(d.Get("rdata"), d.Get("type").(string))
 	if diags.HasError() {
 		return diags
@@ -545,7 +541,6 @@ func resourceDataRecordUpdate(ctx context.Context, d *schema.ResourceData, m int
 		Disabled:           d.Get("disabled").(bool),
 		InheritanceSources: expandDataRecordInheritance(d.Get("inheritance_sources").([]interface{})),
 		NameInZone:         d.Get("name_in_zone").(string),
-		Options:            opts,
 		Rdata:              rData,
 		Tags:               d.Get("tags"),
 		TTL:                int64(d.Get("ttl").(int)),
