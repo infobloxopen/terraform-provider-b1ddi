@@ -24,37 +24,23 @@ func updateDataRecordRData(d interface{}, recordType string) (interface{}, diag.
 	in := d.(map[string]interface{})
 	switch recordType {
 	case "CAA":
-		diags = inPlaceUpdater(in, "flags")
+		inPlaceUpdater(in, "flags", &diags)
 
 	case "MX":
-		diags = inPlaceUpdater(in, "preference")
+		inPlaceUpdater(in, "preference", &diags)
 
 	case "NAPTR":
-		diagErr := inPlaceUpdater(in, "order")
-		if diagErr != nil {
-			diags = append(diags, diagErr...)
-		}
-		diagErr = inPlaceUpdater(in, "preference")
-		if diagErr != nil {
-			diags = append(diags, diagErr...)
-		}
+		inPlaceUpdater(in, "order", &diags)
+		inPlaceUpdater(in, "preference", &diags)
 
 	case "SOA":
-		diags = inPlaceUpdater(in, "serial")
+		inPlaceUpdater(in, "serial", &diags)
 
 	case "SRV":
-		diagErr := inPlaceUpdater(in, "port")
-		if diagErr != nil {
-			diags = append(diags, diagErr...)
-		}
-		diagErr = inPlaceUpdater(in, "priority")
-		if diagErr != nil {
-			diags = append(diags, diagErr...)
-		}
-		diagErr = inPlaceUpdater(in, "weight")
-		if diagErr != nil {
-			diags = append(diags, diagErr...)
-		}
+		inPlaceUpdater(in, "port", &diags)
+		inPlaceUpdater(in, "priority", &diags)
+		inPlaceUpdater(in, "weight", &diags)
+
 	default:
 		return d, nil
 	}
@@ -62,14 +48,13 @@ func updateDataRecordRData(d interface{}, recordType string) (interface{}, diag.
 	return in, diags
 }
 
-func inPlaceUpdater(in map[string]interface{}, key string) diag.Diagnostics {
+func inPlaceUpdater(in map[string]interface{}, key string, diags *diag.Diagnostics) {
 	if val, ok := in[key]; ok {
 		i, err := strconv.Atoi(val.(string))
 		if err != nil {
-			return diag.Errorf(ParseError, key, err)
+			*diags = append(*diags, diag.Errorf(ParseError, key, err)...)
 		} else {
 			in[key] = i
 		}
 	}
-	return nil
 }
