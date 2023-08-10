@@ -300,7 +300,8 @@ func TestAccResourceDnsSRVRecord_Update(t *testing.T) {
 						name_in_zone = "tf_acc_test_srv_record"
 						rdata = {
 							"weight" = 100
-							"port" = 2100	
+							"port" = 2100
+							"priority" = 0
 						}
 						tags = {
 							TestType = "Acceptance"
@@ -315,6 +316,7 @@ func TestAccResourceDnsSRVRecord_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "name_in_zone", "tf_acc_test_srv_record"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "rdata.port", "2100"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "rdata.weight", "100"),
+					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "rdata.priority", "0"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "source.0", "STATIC"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "tags.%", "1"),
 					resource.TestCheckResourceAttr("b1ddi_dns_record.tf_acc_test_dns_srv_record", "tags.TestType", "Acceptance"),
