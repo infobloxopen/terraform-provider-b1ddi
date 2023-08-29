@@ -416,9 +416,11 @@ func resourceConfigAuthZoneRead(ctx context.Context, d *schema.ResourceData, m i
 	if err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
-	err = d.Set("inheritance_sources", flattenConfigAuthZoneInheritance(resp.Payload.Result.InheritanceSources))
-	if err != nil {
-		diags = append(diags, diag.FromErr(err)...)
+	if resp.Payload.Result.InheritanceSources != nil {
+		err = d.Set("inheritance_sources", flattenConfigAuthZoneInheritance(resp.Payload.Result.InheritanceSources))
+		if err != nil {
+			diags = append(diags, diag.FromErr(err)...)
+		}
 	}
 	err = d.Set("initial_soa_serial", resp.Payload.Result.InitialSoaSerial)
 	if err != nil {
