@@ -101,11 +101,10 @@ func resourceConfigAuthZone() *schema.Resource {
 
 			// Optional. Inheritance configuration.
 			"inheritance_sources": {
-				Type:     schema.TypeList,
-				Elem:     schemaConfigAuthZoneInheritance(),
-				MaxItems: 1,
-				Optional: true,
-				//Computed:    true,
+				Type:        schema.TypeList,
+				Elem:        schemaConfigAuthZoneInheritance(),
+				MaxItems:    1,
+				Optional:    true,
 				Description: "Optional. Inheritance configuration.",
 			},
 
@@ -638,7 +637,11 @@ func inheritanceSourceObjUpdater(d []interface{}, r *models.ConfigAuthZoneInheri
 	authZoneInheritance := new(models.ConfigAuthZoneInheritance)
 
 	for _, v := range d {
-		for key, value := range v.(map[string]interface{}) {
+		inheritanceSources, ok := v.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		for key, value := range inheritanceSources {
 			if reflect.ValueOf(value).Len() > 0 {
 				switch key {
 				case "gss_tsig_enabled":
