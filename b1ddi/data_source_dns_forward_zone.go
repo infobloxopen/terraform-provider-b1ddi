@@ -70,8 +70,8 @@ func flattenConfigForwardZone(r *models.ConfigForwardZone) []interface{} {
 	}
 
 	externalForwarders := make([]map[string]interface{}, 0, len(r.ExternalForwarders))
-	for _, ep := range r.ExternalForwarders {
-		externalForwarders = append(externalForwarders, flattenConfigForwarder(ep))
+	for _, ef := range r.ExternalForwarders {
+		externalForwarders = append(externalForwarders, flattenConfigForwarder(ef))
 	}
 
 	return []interface{}{

@@ -177,9 +177,9 @@ func resourceConfigForwardZoneCreate(ctx context.Context, d *schema.ResourceData
 	c := m.(*b1ddiclient.Client)
 
 	externalForwarders := make([]*models.ConfigForwarder, 0)
-	for _, ep := range d.Get("external_forwarders").([]interface{}) {
-		if ep != nil {
-			externalForwarders = append(externalForwarders, expandConfigForwarder(ep.(map[string]interface{})))
+	for _, ef := range d.Get("external_forwarders").([]interface{}) {
+		if ef != nil {
+			externalForwarders = append(externalForwarders, expandConfigForwarder(ef.(map[string]interface{})))
 		}
 	}
 
@@ -213,7 +213,6 @@ func resourceConfigForwardZoneCreate(ctx context.Context, d *schema.ResourceData
 		Hosts:              hosts,
 		InternalForwarders: internalForwarders,
 		Nsgs:               nsgs,
-		Parent:             d.Get("parent").(string),
 		Tags:               d.Get("tags"),
 		View:               d.Get("view").(string),
 	}
@@ -261,8 +260,8 @@ func resourceConfigForwardZoneRead(ctx context.Context, d *schema.ResourceData, 
 		diags = append(diags, diag.FromErr(err)...)
 	}
 	externalForwarders := make([]map[string]interface{}, 0, len(resp.Payload.Result.ExternalForwarders))
-	for _, ep := range resp.Payload.Result.ExternalForwarders {
-		externalForwarders = append(externalForwarders, flattenConfigForwarder(ep))
+	for _, ef := range resp.Payload.Result.ExternalForwarders {
+		externalForwarders = append(externalForwarders, flattenConfigForwarder(ef))
 	}
 	err = d.Set("forward_only", resp.Payload.Result.ForwardOnly)
 	if err != nil {
@@ -329,9 +328,9 @@ func resourceConfigForwardZoneUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	externalForwarders := make([]*models.ConfigForwarder, 0)
-	for _, ep := range d.Get("external_forwarders").([]interface{}) {
-		if ep != nil {
-			externalForwarders = append(externalForwarders, expandConfigForwarder(ep.(map[string]interface{})))
+	for _, ef := range d.Get("external_forwarders").([]interface{}) {
+		if ef != nil {
+			externalForwarders = append(externalForwarders, expandConfigForwarder(ef.(map[string]interface{})))
 		}
 	}
 
@@ -364,7 +363,6 @@ func resourceConfigForwardZoneUpdate(ctx context.Context, d *schema.ResourceData
 		Hosts:              hosts,
 		InternalForwarders: internalForwarders,
 		Nsgs:               nsgs,
-		Parent:             d.Get("parent").(string),
 		Tags:               d.Get("tags"),
 	}
 
