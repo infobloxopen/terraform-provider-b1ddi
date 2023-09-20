@@ -50,8 +50,8 @@ func dataSourceConfigForwardZoneRead(ctx context.Context, d *schema.ResourceData
 	}
 
 	results := make([]interface{}, 0, len(resp.Payload.Results))
-	for _, ab := range resp.Payload.Results {
-		results = append(results, flattenConfigForwardZone(ab)...)
+	for _, fwdZone := range resp.Payload.Results {
+		results = append(results, flattenConfigForwardZone(fwdZone)...)
 	}
 	err = d.Set("results", results)
 	if err != nil {
