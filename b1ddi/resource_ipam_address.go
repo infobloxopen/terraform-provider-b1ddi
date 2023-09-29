@@ -3,11 +3,16 @@ package b1ddi
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address"
+	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address_block"
+	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/range_operations"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/subnet"
 	"github.com/infobloxopen/b1ddi-go-client/models"
 )
@@ -180,8 +185,9 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if d.Get("address").(string) != "" {
+	addressStr := d.Get("address").(string)
 
+	if !strings.HasPrefix(addressStr, "ipam") {
 		a := &models.IpamsvcAddress{
 			Address:   swag.String(d.Get("address").(string)),
 			Comment:   d.Get("comment").(string),
@@ -199,19 +205,40 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.FromErr(err)
 		}
-
 		d.SetId(resp.Payload.Result.ID)
 	} else {
-		resp, err := c.IPAddressManagementAPI.Subnet.SubnetCreateNextAvailableIP(&subnet.SubnetCreateNextAvailableIPParams{
-			ID:      d.Get("parent").(string),
-			Context: ctx,
-		}, nil)
-		if err != nil {
-			return diag.FromErr(err)
+		var payload *models.IpamsvcCreateNextAvailableIPResponse
+		if strings.HasPrefix(addressStr, "ipam/address_block") {
+			resp, err := c.IPAddressManagementAPI.AddressBlock.AddressBlockCreateNextAvailableIP(&address_block.AddressBlockCreateNextAvailableIPParams{
+				ID:      addressStr,
+				Context: ctx,
+			}, nil)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			payload = resp.Payload
+		} else if strings.HasPrefix(addressStr, "ipam/subnet") {
+			resp, err := c.IPAddressManagementAPI.Subnet.SubnetCreateNextAvailableIP(&subnet.SubnetCreateNextAvailableIPParams{
+				ID:      addressStr,
+				Context: ctx,
+			}, nil)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			payload = resp.Payload
+		} else if strings.HasPrefix(addressStr, "ipam/range") {
+			resp, err := c.IPAddressManagementAPI.RangeOperations.RangeCreateNextAvailableIP(&range_operations.RangeCreateNextAvailableIPParams{
+				ID:      addressStr,
+				Context: ctx,
+			}, nil)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			payload = resp.Payload
 		}
 
 		body := &models.IpamsvcAddress{
-			Address:   resp.Payload.Results[0].Address,
+			Address:   payload.Results[0].Address,
 			Comment:   d.Get("comment").(string),
 			Host:      d.Get("host").(string),
 			Hwaddr:    d.Get("hwaddr").(string),
@@ -222,7 +249,7 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		respUpd, err := c.IPAddressManagementAPI.Address.AddressUpdate(
-			&address.AddressUpdateParams{ID: resp.Payload.Results[0].ID, Body: body, Context: ctx},
+			&address.AddressUpdateParams{ID: payload.Results[0].ID, Body: body, Context: ctx},
 			nil,
 		)
 		if err != nil {
