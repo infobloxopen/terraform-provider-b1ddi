@@ -29,7 +29,7 @@ func dataSourceDnsHost() *schema.Resource {
 			"tags": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "This parameter is used for filtering by tags.",
+				Description: "Configure a map of tag filters to be applied on the search result.",
 			},
 		},
 	}
