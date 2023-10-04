@@ -26,6 +26,11 @@ func dataSourceDnsHost() *schema.Resource {
 				Elem:        schemaConfigHost(),
 				Description: "List of DNS Hosts matching filters.",
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "This parameter is used for filtering by tags.",
+			},
 		},
 	}
 }
@@ -38,8 +43,12 @@ func dataSourceDnsHostRead(ctx context.Context, d *schema.ResourceData, m interf
 	filtersMap := d.Get("filters").(map[string]interface{})
 	filterStr := filterFromMap(filtersMap)
 
+	tfilterMap := d.Get("tags").(map[string]interface{})
+	tfilterStr := filterFromMap(tfilterMap)
+
 	resp, err := c.DNSConfigurationAPI.Host.HostList(&host.HostListParams{
 		Filter:  swag.String(filterStr),
+		Tfilter: swag.String(tfilterStr),
 		Context: ctx,
 	}, nil)
 	if err != nil {

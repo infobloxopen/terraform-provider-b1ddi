@@ -42,12 +42,16 @@ func TestAccDataSourceConfigAuthNsg_FullConfig(t *testing.T) {
 						filters = {
 							name = "tf_acc_test_auth_nsg"
 						}
+						tags = {
+							TestType = "Acceptance"
+						}
 					}
 				`),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.b1ddi_dns_auth_nsgs.tf_acc_auth_nsg", "results.#", "1"),
 					resource.TestCheckResourceAttrSet("data.b1ddi_dns_auth_nsgs.tf_acc_auth_nsg", "results.0.id"),
 					resource.TestCheckResourceAttr("data.b1ddi_dns_auth_nsgs.tf_acc_auth_nsg", "results.0.name", "tf_acc_test_auth_nsg"),
+					resource.TestCheckResourceAttr("data.b1ddi_dns_auth_nsgs.tf_acc_auth_nsg", "results.0.tags.TestType", "Acceptance"),
 				),
 			},
 		},

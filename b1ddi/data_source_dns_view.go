@@ -27,6 +27,11 @@ func dataSourceConfigView() *schema.Resource {
 				Elem:        dataSourceSchemaFromResource(resourceConfigView),
 				Description: "List of DNS Views matching filters. The schema of each element is identical to the b1ddi_dns_view resource schema.",
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "This parameter is used for filtering by tags.",
+			},
 		},
 	}
 }
@@ -39,8 +44,12 @@ func dataSourceConfigViewRead(ctx context.Context, d *schema.ResourceData, m int
 	filtersMap := d.Get("filters").(map[string]interface{})
 	filterStr := filterFromMap(filtersMap)
 
+	tfilterMap := d.Get("tags").(map[string]interface{})
+	tfilterStr := filterFromMap(tfilterMap)
+
 	resp, err := c.DNSConfigurationAPI.View.ViewList(&view.ViewListParams{
 		Filter:  swag.String(filterStr),
+		Tfilter: swag.String(tfilterStr),
 		Context: ctx,
 	}, nil)
 	if err != nil {
