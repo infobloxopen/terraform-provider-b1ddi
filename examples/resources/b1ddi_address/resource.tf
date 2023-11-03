@@ -12,8 +12,8 @@ resource "b1ddi_ip_space" "example_tf_space" {
 }
 
 resource "b1ddi_address_block" "tf_example_address_block" {
-  address = "192.168.1.0"
-  cidr = 24
+  address = "192.168.0.0"
+  cidr = 16
   name = "tf_example_address_block"
   space = b1ddi_ip_space.example_tf_space.id
 }

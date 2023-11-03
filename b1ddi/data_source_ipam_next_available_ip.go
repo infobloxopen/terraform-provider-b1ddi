@@ -3,33 +3,16 @@ package b1ddi
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address"
-	"github.com/infobloxopen/b1ddi-go-client/models"
+	"strings"
 )
 
-const NAIP_PATH = "nextavailableip"
-
-// IpamsvcAddress Address
-//
-// An __Address__ object (_ipam/address_) represents any single IP address within a given IP space.
-//
-// swagger:model ipamsvcAddress
-func resourceIpamsvcAddress() *schema.Resource {
+func dataSourceIpamsvcNaIP() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceIpamsvcAddressCreate,
-		ReadContext:   resourceIpamsvcAddressRead,
-		UpdateContext: resourceIpamsvcAddressUpdate,
-		DeleteContext: resourceIpamsvcAddressDelete,
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
+		ReadContext: dataSourceIpamsvcNaIPRead,
 		Schema: map[string]*schema.Schema{
 
 			// The address in form "a.b.c.d".
@@ -172,56 +155,21 @@ func resourceIpamsvcAddress() *schema.Resource {
 	}
 }
 
-func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceIpamsvcNaIPRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*b1ddiclient.Client)
-
-	var diags diag.Diagnostics
-	var addressPath string
-
-	names := make([]*models.IpamsvcName, 0)
-	for _, n := range d.Get("names").([]interface{}) {
-		if n != nil {
-			names = append(names, expandIpamsvcName(n.(map[string]interface{})))
-		}
-	}
 
 	addressStr := d.Get("address").(string)
-	if !strings.HasPrefix(addressStr, "ipam") {
-		addressPath = addressStr
-	} else {
 
-		addressPath = fmt.Sprintf("%s/%s",addressStr,NAIP_PATH)
+	if !strings.HasPrefix(addressStr, "ipam") {
+		return nil
 	}
 
-		a := &models.IpamsvcAddress{
-			Address:   swag.String(addressPath),
-			Comment:   d.Get("comment").(string),
-			Host:      d.Get("host").(string),
-			Hwaddr:    d.Get("hwaddr").(string),
-			Interface: d.Get("interface").(string),
-			Names:     names,
-			Parent:    d.Get("parent").(string),
-			Range:     d.Get("range").(string),
-			Space:     swag.String(d.Get("space").(string)),
-			Tags:      d.Get("tags"),
-		}
-
-		resp, err := c.IPAddressManagementAPI.Address.AddressCreate(&address.AddressCreateParams{Body: a, Context: ctx}, nil)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		d.SetId(resp.Payload.Result.ID)
-
-	return append(diags, resourceIpamsvcAddressRead(ctx, d, m)...)
-}
-
-func resourceIpamsvcAddressRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*b1ddiclient.Client)
+	addressPath := fmt.Sprintf("%s/%s", addressStr, NAIP_PATH)
 
 	var diags diag.Diagnostics
 
 	resp, err := c.IPAddressManagementAPI.Address.AddressRead(
-		&address.AddressReadParams{ID: d.Id(), Context: ctx},
+		&address.AddressReadParams{ID: addressPath, Context: ctx},
 		nil,
 	)
 	if err != nil {
@@ -300,71 +248,6 @@ func resourceIpamsvcAddressRead(ctx context.Context, d *schema.ResourceData, m i
 	if err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
-
-	return diags
-}
-
-func resourceIpamsvcAddressUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*b1ddiclient.Client)
-
-	if !d.IsNewResource() {
-		return nil
-	}
-
-	if d.HasChange("space") {
-		d.Partial(true)
-		return diag.FromErr(fmt.Errorf("changing the value of 'space' field is not allowed"))
-	}
-
-	names := make([]*models.IpamsvcName, 0)
-	for _, n := range d.Get("names").([]interface{}) {
-		if n != nil {
-			names = append(names, expandIpamsvcName(n.(map[string]interface{})))
-		}
-	}
-
-	body := &models.IpamsvcAddress{
-		Address:   swag.String(d.Get("address").(string)),
-		Comment:   d.Get("comment").(string),
-		Host:      d.Get("host").(string),
-		Hwaddr:    d.Get("hwaddr").(string),
-		Interface: d.Get("interface").(string),
-		Names:     names,
-		Range:     d.Get("range").(string),
-		Tags:      d.Get("tags"),
-	}
-
-	resp, err := c.IPAddressManagementAPI.Address.AddressUpdate(
-		&address.AddressUpdateParams{ID: d.Id(), Body: body, Context: ctx},
-		nil,
-	)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	d.SetId(resp.Payload.Result.ID)
-
-	return resourceIpamsvcAddressRead(ctx, d, m)
-}
-
-func resourceIpamsvcAddressDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*b1ddiclient.Client)
-
-	var diags diag.Diagnostics
-
-	_, err := c.IPAddressManagementAPI.Address.AddressDelete(
-		&address.AddressDeleteParams{ID: d.Id(), Context: ctx},
-		nil,
-	)
-	if err != nil {
-		if err.Error() == errRecordNotFound {
-			diags = append(diags, diag.Diagnostic{Severity: diag.Warning, Summary: err.Error()})
-		} else {
-			return diag.FromErr(err)
-		}
-	}
-
-	d.SetId("")
 
 	return diags
 }

@@ -71,6 +71,49 @@ func resourceAddressBasicTestStep() resource.TestStep {
 	}
 }
 
+func resourceSubnetNAIPBasicTestStep() resource.TestStep {
+	return resource.TestStep{
+		Config: fmt.Sprintf(`
+					resource "b1ddi_ip_space" "tf_acc_test_space" {
+  						name = "tf_acc_test_space"
+  						comment = "This IP Space is created by terraform provider acceptance test"
+					}
+					resource "b1ddi_subnet" "tf_acc_test_subnet" {
+						name = "tf_acc_test_subnet"						
+						address = "192.168.1.0"
+						space = b1ddi_ip_space.tf_acc_test_space.id
+						cidr = 24
+  						comment = "This Subnet is created by terraform provider acceptance test"
+					}
+					resource "b1ddi_address" "tf_acc_test_address" {
+						address = b1ddi_subnet.tf_acc_test_subnet.id
+						comment = "This Address is created by subnet NAIP terraform provider acceptance test"
+						space = b1ddi_ip_space.tf_acc_test_space.id
+						depends_on = [b1ddi_subnet.tf_acc_test_subnet]
+					}`),
+		Check: resource.ComposeAggregateTestCheckFunc(
+			testCheckIPSpaceExists("b1ddi_ip_space.tf_acc_test_space"),
+			testCheckSubnetExists("b1ddi_subnet.tf_acc_test_subnet"),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "comment", "This Address is created by subnet NAIP terraform provider acceptance test"),
+			resource.TestCheckResourceAttrSet("b1ddi_address.tf_acc_test_address", "created_at"),
+			resource.TestCheckNoResourceAttr("b1ddi_address.tf_acc_test_address", "dhcp_info.#"),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "host", ""),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "hwaddr", ""),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "interface", ""),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "names.%", "0"),
+			resource.TestCheckResourceAttrSet("b1ddi_address.tf_acc_test_address", "parent"),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "protocol", "ip4"),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "range", ""),
+			resource.TestCheckResourceAttrSet("b1ddi_address.tf_acc_test_address", "space"),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "state", "used"),
+			resource.TestCheckNoResourceAttr("b1ddi_address.tf_acc_test_address", "tags"),
+			resource.TestCheckResourceAttrSet("b1ddi_address.tf_acc_test_address", "updated_at"),
+			resource.TestCheckResourceAttr("b1ddi_address.tf_acc_test_address", "usage.0", "IPAM RESERVED"),
+		),
+	}
+}
+
+
 func TestAccResourceAddress_FullConfig(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -279,7 +322,7 @@ func TestAccResourceAddress_NextAvailableIP(t *testing.T) {
   						comment = "This Subnet is created by terraform provider acceptance test"
 					}
 					resource "b1ddi_address" "tf_acc_test_address" {
-						parent = b1ddi_subnet.tf_acc_test_subnet.id
+						address = b1ddi_subnet.tf_acc_test_subnet.id
 						comment = "This Address is created by terraform provider acceptance test"
 						space = b1ddi_ip_space.tf_acc_test_space.id
 					}`),
@@ -336,7 +379,7 @@ func TestAccResourceAddress_NextAvailableIP_FullConfig(t *testing.T) {
   						comment = "This Subnet is created by terraform provider acceptance test"
 					}
 					resource "b1ddi_address" "tf_acc_test_address" {
-						parent = b1ddi_subnet.tf_acc_test_subnet.id
+						address = b1ddi_subnet.tf_acc_test_subnet.id
 						comment = "This Address is created by terraform provider acceptance test"
 						space = b1ddi_ip_space.tf_acc_test_space.id
 						hwaddr = "00:00:00:00:00:00"
