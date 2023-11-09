@@ -18,7 +18,7 @@ func TestAccDataSourceConfigAuthZone_Basic(t *testing.T) {
 						filters = {
 							fqdn = "tf-acc-test.com."
 						}
-						tags = {
+						tfilters = {
 							TestType = "Acceptance"
 						}
 					}
@@ -46,7 +46,7 @@ func TestAccDataSourceConfigAuthZone_FullConfigCloud(t *testing.T) {
 						filters = {
 							fqdn = "tf-acc-test.com."
 						}
-						tags = {
+						tfilters = {
 							TestType = "Acceptance"
 						}
 					}
@@ -74,7 +74,7 @@ func TestAccDataSourceConfigAuthZone_FullConfigExternal(t *testing.T) {
 						filters = {
 							fqdn = "tf-acc-test.com."
 						}
-						tags = {
+						tfilters = {
 							TestType = "Acceptance"
 						}
 					}

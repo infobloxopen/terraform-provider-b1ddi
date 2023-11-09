@@ -26,7 +26,7 @@ func dataSourceDnsHost() *schema.Resource {
 				Elem:        schemaConfigHost(),
 				Description: "List of DNS Hosts matching filters.",
 			},
-			"tags": {
+			"tfilters": {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Description: "Configure a map of tag filters to be applied on the search result.",
@@ -43,7 +43,7 @@ func dataSourceDnsHostRead(ctx context.Context, d *schema.ResourceData, m interf
 	filtersMap := d.Get("filters").(map[string]interface{})
 	filterStr := filterFromMap(filtersMap)
 
-	tfilterMap := d.Get("tags").(map[string]interface{})
+	tfilterMap := d.Get("tfilters").(map[string]interface{})
 	tfilterStr := filterFromMap(tfilterMap)
 
 	resp, err := c.DNSConfigurationAPI.Host.HostList(&host.HostListParams{

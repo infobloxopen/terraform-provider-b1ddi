@@ -27,7 +27,7 @@ func dataSourceConfigView() *schema.Resource {
 				Elem:        dataSourceSchemaFromResource(resourceConfigView),
 				Description: "List of DNS Views matching filters. The schema of each element is identical to the b1ddi_dns_view resource schema.",
 			},
-			"tags": {
+			"tfilters": {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Description: "Configure a map of tag filters to be applied on the search result.",
@@ -44,7 +44,7 @@ func dataSourceConfigViewRead(ctx context.Context, d *schema.ResourceData, m int
 	filtersMap := d.Get("filters").(map[string]interface{})
 	filterStr := filterFromMap(filtersMap)
 
-	tfilterMap := d.Get("tags").(map[string]interface{})
+	tfilterMap := d.Get("tfilters").(map[string]interface{})
 	tfilterStr := filterFromMap(tfilterMap)
 
 	resp, err := c.DNSConfigurationAPI.View.ViewList(&view.ViewListParams{

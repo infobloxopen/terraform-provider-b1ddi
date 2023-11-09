@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     b1ddi = {
-      version = "0.1"
+      version = "0.1.5"
       source  = "infobloxopen/b1ddi"
     }
   }
@@ -25,4 +25,7 @@ resource "b1ddi_dns_auth_nsg" "tf_example_auth_nsg" {
   internal_secondaries {
     host = data.b1ddi_dns_hosts.dns_host_by_name.results.0.id
   }
+    tags = {
+      TestType  = "Acceptance"
+    }
 }
