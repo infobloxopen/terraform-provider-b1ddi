@@ -25,7 +25,7 @@ func TestAccDataSourceIpamsvcIPSpace_Basic(t *testing.T) {
 							# Check bool filter
 							"hostname_rewrite_enabled" = false
 						}
-                    }
+					}
 				`),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.b1ddi_ip_spaces.tf_acc_spaces", "results.#", "1"),
