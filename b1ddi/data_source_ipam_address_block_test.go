@@ -27,6 +27,19 @@ func TestAccDataSourceIpamsvcAddressBlock_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.b1ddi_address_blocks.tf_acc_address_blocks", "results.0.comment", "This Address Block is created by terraform provider acceptance test"),
 				),
 			},
+			{
+				Config: fmt.Sprintf(`
+					data "b1ddi_address_blocks" "tf_acc_address_blocks_by_tag" {
+						tfilters = {
+							# Search by Tag
+							"TestType" = "Acceptance"
+						}
+					}
+				`),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.b1ddi_address_blocks.tf_acc_address_blocks_by_tag", "tfilters.TestType", "Acceptance"),
+				),
+			},
 		},
 	})
 }
