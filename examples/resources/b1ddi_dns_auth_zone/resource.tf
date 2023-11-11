@@ -1,7 +1,6 @@
 terraform {
   required_providers {
     b1ddi = {
-      version = "0.1.5"
       source  = "infobloxopen/b1ddi"
     }
   }
@@ -35,18 +34,3 @@ resource "b1ddi_dns_auth_zone" "tf_example_auth_zone" {
     }
 }
 
-data "b1ddi_dns_auth_zones" "all_auth_zones" {}
-
-data "b1ddi_dns_auth_zones" "all_auth_zones_with_tags" {
-       tfilters = {
-            TestType  = "Acceptance"
-          }
-}
-
-output "zones" {
-  value= data.b1ddi_dns_auth_zones.all_auth_zones.results
-}
-
-output "zones_with_tags" {
-  value= data.b1ddi_dns_auth_zones.all_auth_zones_with_tags.results
-}

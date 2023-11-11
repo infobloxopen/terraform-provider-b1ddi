@@ -16,3 +16,10 @@ data "b1ddi_dns_auth_nsgs" "tf_example_auth_nsg" {
 
 # Get all DNS Auth NSGs
 data "b1ddi_dns_auth_nsgs" "all_dns_auth_nsgs" {}
+
+# Get DNS Auth NSG with the specified tags
+data "b1ddi_dns_views" "all_dns_views_with_tags" {
+       tfilters = {
+            TestType  = "Acceptance"
+          }
+}

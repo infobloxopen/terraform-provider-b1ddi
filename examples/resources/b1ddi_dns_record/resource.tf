@@ -1,7 +1,6 @@
 terraform {
   required_providers {
     b1ddi = {
-      version = "0.1.5"
       source  = "infobloxopen/b1ddi"
     }
   }
@@ -70,18 +69,3 @@ resource "b1ddi_dns_record" "ns_record" {
     }
 }
 
-data "b1ddi_dns_records" "all_dns_records" {}
-
-data "b1ddi_dns_records" "all_dns_records_with_tags" {
-       tfilters = {
-            TestType  = "Acceptance"
-          }
-}
-
-output "records" {
-  value= data.b1ddi_dns_records.all_dns_records.results
-}
-
-output "records_with_tags" {
-  value= data.b1ddi_dns_records.all_dns_records_with_tags.results
-}
