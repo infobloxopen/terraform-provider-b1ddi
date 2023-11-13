@@ -1,16 +1,15 @@
 terraform {
   required_providers {
     b1ddi = {
-      version = "0.1"
       source  = "infobloxopen/b1ddi"
     }
   }
 }
 
 # Get DNS Auth NSG with the specified name
-data "b1ddi_dns_auth_nsgs" "tf_example_auth_nsg" {
+data "b1ddi_dns_auth_nsgs" "tf_example_auth_nsgs" {
   filters = {
-    name = "tf_example_auth_nsg"
+    name = "tf_example_auth_nsgs"
   }
 }
 
@@ -18,8 +17,8 @@ data "b1ddi_dns_auth_nsgs" "tf_example_auth_nsg" {
 data "b1ddi_dns_auth_nsgs" "all_dns_auth_nsgs" {}
 
 # Get DNS Auth NSG with the specified tags
-data "b1ddi_dns_views" "all_dns_views_with_tags" {
-       tfilters = {
-            TestType  = "Acceptance"
-          }
+data "b1ddi_dns_auth_nsgs" "all_dns_auth_nsgs_with_tags" {
+  tfilters = {
+    location = "site1"
+  }
 }

@@ -76,7 +76,6 @@ func resourceDnsAuthZoneBasicTestStep(t *testing.T) resource.TestStep {
 			resource.TestCheckResourceAttr("b1ddi_dns_auth_zone.tf_acc_test_auth_zone", "query_acl.#", "0"),
 			resource.TestCheckResourceAttr("b1ddi_dns_auth_zone.tf_acc_test_auth_zone", "tags.TestType", "Acceptance"),
 			resource.TestCheckResourceAttr("b1ddi_dns_auth_zone.tf_acc_test_auth_zone", "transfer_acl.#", "0"),
-			resource.TestCheckResourceAttr("b1ddi_dns_auth_zone.tf_acc_test_auth_zone", "transfer_acl.#", "0"),
 			resource.TestCheckResourceAttr("b1ddi_dns_auth_zone.tf_acc_test_auth_zone", "update_acl.#", "0"),
 			resource.TestCheckResourceAttrSet("b1ddi_dns_auth_zone.tf_acc_test_auth_zone", "updated_at"),
 

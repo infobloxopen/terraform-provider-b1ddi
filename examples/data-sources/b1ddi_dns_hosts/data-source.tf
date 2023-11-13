@@ -1,8 +1,7 @@
 terraform {
   required_providers {
     b1ddi = {
-      version = "0.1"
-      source  = "infobloxopen/b1ddi"
+      source = "infobloxopen/b1ddi"
     }
   }
 }
@@ -14,5 +13,11 @@ data "b1ddi_dns_hosts" "all_hosts" {}
 data "b1ddi_dns_hosts" "dns_host_by_name" {
   filters = {
     name = "dns_host_name"
+  }
+}
+
+data "b1ddi_dns_hosts" "all_dns_host_by_tags" {
+  tfilters = {
+    location = "site1"
   }
 }
