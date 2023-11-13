@@ -22,15 +22,6 @@ func TestAccDataSourceIpamsvcRange_Basic(t *testing.T) {
 							"end" = "192.168.1.30"
 						}
 					}
-				`),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.b1ddi_ranges.tf_acc_ranges", "results.#", "1"),
-					resource.TestCheckResourceAttrSet("data.b1ddi_ranges.tf_acc_ranges", "results.0.id"),
-					resource.TestCheckResourceAttr("data.b1ddi_ranges.tf_acc_ranges", "results.0.comment", "This Range is created by terraform provider acceptance test"),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
 					data "b1ddi_ranges" "tf_acc_ranges_by_tag" {
 						tfilters = {
 							# Search by Tag
@@ -39,6 +30,9 @@ func TestAccDataSourceIpamsvcRange_Basic(t *testing.T) {
 					}
 				`),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.b1ddi_ranges.tf_acc_ranges", "results.#", "1"),
+					resource.TestCheckResourceAttrSet("data.b1ddi_ranges.tf_acc_ranges", "results.0.id"),
+					resource.TestCheckResourceAttr("data.b1ddi_ranges.tf_acc_ranges", "results.0.comment", "This Range is created by terraform provider acceptance test"),
 					resource.TestCheckResourceAttr("data.b1ddi_ranges.tf_acc_ranges_by_tag", "tfilters.TestType", "Acceptance"),
 				),
 			},

@@ -26,15 +26,6 @@ func TestAccDataSourceIpamsvcIPSpace_Basic(t *testing.T) {
 							"hostname_rewrite_enabled" = false
 						}
 					}
-				`),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.b1ddi_ip_spaces.tf_acc_spaces", "results.#", "1"),
-					resource.TestCheckResourceAttrSet("data.b1ddi_ip_spaces.tf_acc_spaces", "results.0.id"),
-					resource.TestCheckResourceAttr("data.b1ddi_ip_spaces.tf_acc_spaces", "results.0.comment", "This IP Space is created by terraform provider acceptance test"),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
 					data "b1ddi_ip_spaces" "tf_acc_spaces_by_tag" {
 						tfilters = {
 							# Search by Tag
@@ -43,6 +34,9 @@ func TestAccDataSourceIpamsvcIPSpace_Basic(t *testing.T) {
 					}
 				`),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.b1ddi_ip_spaces.tf_acc_spaces", "results.#", "1"),
+					resource.TestCheckResourceAttrSet("data.b1ddi_ip_spaces.tf_acc_spaces", "results.0.id"),
+					resource.TestCheckResourceAttr("data.b1ddi_ip_spaces.tf_acc_spaces", "results.0.comment", "This IP Space is created by terraform provider acceptance test"),
 					resource.TestCheckResourceAttr("data.b1ddi_ip_spaces.tf_acc_spaces_by_tag", "tfilters.TestType", "Acceptance"),
 				),
 			},
