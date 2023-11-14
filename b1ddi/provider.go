@@ -74,6 +74,7 @@ func Provider() *schema.Provider {
 			"b1ddi_dns_forward_nsgs":            dataSourceConfigForwardNSG(),
 			"b1ddi_dns_forward_zones":           dataSourceConfigForwardZone(),
 			"b1ddi_ipam_next_available_subnets": dataSourceIpamsvcNextAvailableSubnet(),
+			"b1ddi_next_available_ip":           dataSourceIpamsvcNaIP(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

@@ -3,14 +3,18 @@ package b1ddi
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address"
-	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/subnet"
 	"github.com/infobloxopen/b1ddi-go-client/models"
 )
+
+const NAIP_PATH = "nextavailableip"
 
 // IpamsvcAddress Address
 //
@@ -29,7 +33,6 @@ func resourceIpamsvcAddress() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			// The address in form "a.b.c.d".
-			// Required: true
 			"address": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -172,6 +175,7 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 	c := m.(*b1ddiclient.Client)
 
 	var diags diag.Diagnostics
+	var addressPath string
 
 	names := make([]*models.IpamsvcName, 0)
 	for _, n := range d.Get("names").([]interface{}) {
@@ -180,57 +184,32 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if d.Get("address").(string) != "" {
-
-		a := &models.IpamsvcAddress{
-			Address:   swag.String(d.Get("address").(string)),
-			Comment:   d.Get("comment").(string),
-			Host:      d.Get("host").(string),
-			Hwaddr:    d.Get("hwaddr").(string),
-			Interface: d.Get("interface").(string),
-			Names:     names,
-			Parent:    d.Get("parent").(string),
-			Range:     d.Get("range").(string),
-			Space:     swag.String(d.Get("space").(string)),
-			Tags:      d.Get("tags"),
-		}
-
-		resp, err := c.IPAddressManagementAPI.Address.AddressCreate(&address.AddressCreateParams{Body: a, Context: ctx}, nil)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		d.SetId(resp.Payload.Result.ID)
+	addressStr := d.Get("address").(string)
+	if !strings.HasPrefix(addressStr, "ipam") {
+		addressPath = addressStr
 	} else {
-		resp, err := c.IPAddressManagementAPI.Subnet.SubnetCreateNextAvailableIP(&subnet.SubnetCreateNextAvailableIPParams{
-			ID:      d.Get("parent").(string),
-			Context: ctx,
-		}, nil)
-		if err != nil {
-			return diag.FromErr(err)
-		}
 
-		body := &models.IpamsvcAddress{
-			Address:   resp.Payload.Results[0].Address,
-			Comment:   d.Get("comment").(string),
-			Host:      d.Get("host").(string),
-			Hwaddr:    d.Get("hwaddr").(string),
-			Interface: d.Get("interface").(string),
-			Names:     names,
-			Range:     d.Get("range").(string),
-			Tags:      d.Get("tags"),
-		}
-
-		respUpd, err := c.IPAddressManagementAPI.Address.AddressUpdate(
-			&address.AddressUpdateParams{ID: resp.Payload.Results[0].ID, Body: body, Context: ctx},
-			nil,
-		)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		d.SetId(respUpd.Payload.Result.ID)
+		addressPath = fmt.Sprintf("%s/%s", addressStr, NAIP_PATH)
 	}
+
+	a := &models.IpamsvcAddress{
+		Address:   swag.String(addressPath),
+		Comment:   d.Get("comment").(string),
+		Host:      d.Get("host").(string),
+		Hwaddr:    d.Get("hwaddr").(string),
+		Interface: d.Get("interface").(string),
+		Names:     names,
+		Parent:    d.Get("parent").(string),
+		Range:     d.Get("range").(string),
+		Space:     swag.String(d.Get("space").(string)),
+		Tags:      d.Get("tags"),
+	}
+
+	resp, err := c.IPAddressManagementAPI.Address.AddressCreate(&address.AddressCreateParams{Body: a, Context: ctx}, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	d.SetId(resp.Payload.Result.ID)
 
 	return append(diags, resourceIpamsvcAddressRead(ctx, d, m)...)
 }
@@ -326,6 +305,10 @@ func resourceIpamsvcAddressRead(ctx context.Context, d *schema.ResourceData, m i
 
 func resourceIpamsvcAddressUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*b1ddiclient.Client)
+
+	if !d.IsNewResource() {
+		return nil
+	}
 
 	if d.HasChange("space") {
 		d.Partial(true)

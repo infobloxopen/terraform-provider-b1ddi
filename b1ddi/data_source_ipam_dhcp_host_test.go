@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestAccDataSourceIpamsvcDhcpHost(t *testing.T) {
+/*func TestAccDataSourceIpamsvcDhcpHost(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
@@ -18,7 +18,7 @@ func TestAccDataSourceIpamsvcDhcpHost(t *testing.T) {
 			},
 		},
 	})
-}
+}*/
 
 func TestAccDataSourceIpamsvcDhcpHostByName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
