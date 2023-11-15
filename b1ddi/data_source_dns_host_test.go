@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-/*func TestAccDataSourceDnsHost(t *testing.T) {
+func TestAccDataSourceDnsHost(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
@@ -18,7 +18,7 @@ import (
 			},
 		},
 	})
-}*/
+}
 
 func TestAccDataSourceDnsHostByName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
