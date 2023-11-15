@@ -410,7 +410,6 @@ func resourceIpamsvcSubnetCreate(ctx context.Context, d *schema.ResourceData, m 
 	}
 
 	d.SetId(resp.Payload.Result.ID)
-	//}
 	time.Sleep(time.Second)
 
 	return resourceIpamsvcSubnetRead(ctx, d, m)

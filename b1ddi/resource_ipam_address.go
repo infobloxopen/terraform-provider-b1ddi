@@ -309,10 +309,6 @@ func resourceIpamsvcAddressRead(ctx context.Context, d *schema.ResourceData, m i
 func resourceIpamsvcAddressUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*b1ddiclient.Client)
 
-	if !d.IsNewResource() {
-		return nil
-	}
-
 	if d.HasChange("space") {
 		d.Partial(true)
 		return diag.FromErr(fmt.Errorf("changing the value of 'space' field is not allowed"))

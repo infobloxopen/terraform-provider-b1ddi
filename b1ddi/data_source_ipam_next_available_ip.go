@@ -60,7 +60,7 @@ func dataSourceIpamsvcNaIPRead(ctx context.Context, d *schema.ResourceData, m in
 
 	addressStr := d.Get("id").(string)
 	if addressStr == "" || !strings.HasPrefix(addressStr, "ipam") {
-		return diag.Errorf("The field 'id' has to be the id associated with one of the following resource:[address block, subnet, range]. It should also not be empty")
+		return diag.Errorf()
 	}
 
 	c := m.(*b1ddiclient.Client)
@@ -111,8 +111,6 @@ func dataSourceIpamsvcNaIPRead(ctx context.Context, d *schema.ResourceData, m in
 		}
 		results = resp.Payload.Results
 
-	default:
-		return nil
 	}
 
 	r := make([]interface{}, 0, len(results))
