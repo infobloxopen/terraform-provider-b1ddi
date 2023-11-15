@@ -7,9 +7,9 @@ terraform {
 }
 
 # Get DNS Forward NSG with the specified name
-data "b1ddi_dns_forward_nsgs" "tf_example_forward_nsgs" {
+data "b1ddi_dns_forward_nsgs" "tf_example_forward_nsg" {
   filters = {
-    name = "tf_example_forward_nsgs"
+    name = "tf_example_forward_nsg"
   }
 }
 

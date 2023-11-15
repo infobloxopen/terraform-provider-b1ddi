@@ -7,7 +7,7 @@ terraform {
 }
 
 # Get DNS Auth Zone with the specified FQDN
-data "b1ddi_dns_auth_zones" "tf_example_auth_zones" {
+data "b1ddi_dns_auth_zones" "tf_example_auth_zone" {
   filters = {
     fqdn = "tf-example.com."
   }
@@ -16,7 +16,7 @@ data "b1ddi_dns_auth_zones" "tf_example_auth_zones" {
 # Get all DNS Auth Zones
 data "b1ddi_dns_auth_zones" "all_dns_auth_zones" {}
 
-# Get DNS Auth Zone with the specific tags
+# Get DNS Auth Zones with the specific tags
 data "b1ddi_dns_auth_zones" "all_auth_zones_with_tags" {
   tfilters = {
     location = "site1"

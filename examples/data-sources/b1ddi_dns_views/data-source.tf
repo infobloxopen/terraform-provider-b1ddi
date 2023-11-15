@@ -7,9 +7,9 @@ terraform {
 }
 
 # Select DNS View by name
-data "b1ddi_dns_views" "tf_example_dns_views" {
+data "b1ddi_dns_views" "tf_example_dns_view" {
   filters = {
-    "name" = "tf_example_dns_views"
+    "name" = "example_tf_dns_view"
   }
 }
 
