@@ -1,8 +1,9 @@
 package b1ddi
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceIpamsvcNaIP_AB_Count(t *testing.T) {

@@ -188,7 +188,6 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 	if !strings.HasPrefix(addressStr, "ipam") {
 		addressPath = addressStr
 	} else {
-
 		addressPath = fmt.Sprintf("%s/%s", addressStr, NAIP_PATH)
 	}
 

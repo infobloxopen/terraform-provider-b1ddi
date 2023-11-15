@@ -2,24 +2,25 @@ package b1ddi
 
 import (
 	"context"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address_block"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/range_operations"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/subnet"
 	"github.com/infobloxopen/b1ddi-go-client/models"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func dataSourceIpamsvcNaIP() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIpamsvcNaIPRead,
 		Schema: map[string]*schema.Schema{
-
 			"id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -121,7 +122,7 @@ func dataSourceIpamsvcNaIPRead(ctx context.Context, d *schema.ResourceData, m in
 
 	err := d.Set("results", r)
 	if err != nil {
-		diags = append(diags, diag.FromErr(err)...)
+		return diag.FromErr(err)
 	}
 
 	// always run

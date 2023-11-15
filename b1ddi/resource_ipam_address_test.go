@@ -73,7 +73,7 @@ func resourceAddressBasicTestStep() resource.TestStep {
 
 func resourceSubnetNAIPBasicTestStep() resource.TestStep {
 	return resource.TestStep{
-		Config: fmt.Sprintf(`
+		Config: `
 					resource "b1ddi_ip_space" "tf_acc_test_space" {
   						name = "tf_acc_test_space"
   						comment = "This IP Space is created by terraform provider acceptance test"
@@ -84,7 +84,7 @@ func resourceSubnetNAIPBasicTestStep() resource.TestStep {
    						cidr = 24
 						space = b1ddi_ip_space.tf_acc_test_space.id
 						comment = "This address block is created by terraform provider acceptance test"
-					}	
+					}
 					resource "b1ddi_subnet" "tf_acc_test_subnet" {
 						name = "tf_acc_test_subnet"						
 						address = "192.168.1.0"
@@ -100,7 +100,7 @@ func resourceSubnetNAIPBasicTestStep() resource.TestStep {
   						comment = "This Range is created by terraform provider acceptance test"
 						depends_on = [b1ddi_subnet.tf_acc_test_subnet]
 					}
-					`),
+					`,
 		Check: resource.ComposeAggregateTestCheckFunc(
 			testCheckIPSpaceExists("b1ddi_ip_space.tf_acc_test_space"),
 			testCheckSubnetExists("b1ddi_subnet.tf_acc_test_subnet"),
