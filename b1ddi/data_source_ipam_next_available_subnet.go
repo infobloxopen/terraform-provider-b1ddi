@@ -51,7 +51,7 @@ func dataSourceIpamsvcNextAvailableSubnet() *schema.Resource {
 			"results": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        dataSourceSchemaSubnetFromResource(resourceIpamsvcSubnet),
+				Elem:        dataSourceSchemaOverrideFromResource(resourceIpamsvcSubnet),
 				Description: "No. of Subnets that can be created under the resource matching the 'id'. The schema of each element is identical to the b1ddi_subnet resource schema.",
 			},
 		},

@@ -45,7 +45,7 @@ func dataSourceIpamsvcNaIP() *schema.Resource {
 			"results": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        dataSourceSchemaFromResource(resourceIpamsvcAddress),
+				Elem:        dataSourceSchemaOverrideFromResource(resourceIpamsvcAddress),
 				Description: "List of IPs available under the resource defined by 'id'.\n\nThe schema of each element is identical to the b1ddi_address resource.",
 			},
 		},
@@ -59,8 +59,8 @@ func dataSourceIpamsvcNaIPRead(ctx context.Context, d *schema.ResourceData, m in
 	)
 
 	addressStr := d.Get("id").(string)
-	if !strings.HasPrefix(addressStr, "ipam") || addressStr == "" {
-		return nil
+	if addressStr == "" || !strings.HasPrefix(addressStr, "ipam") {
+		return diag.Errorf("The field 'id' has to be the id associated with one of the following resource:[address block, subnet, range]. It should also not be empty")
 	}
 
 	c := m.(*b1ddiclient.Client)

@@ -3,12 +3,9 @@ package b1ddi
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address"
 	"github.com/infobloxopen/b1ddi-go-client/models"
@@ -31,13 +28,21 @@ func resourceIpamsvcAddress() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
-
+			// Defined for Terraform usage. This field won't be used in the API call
+			"next_available_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"address", "next_available_id"},
+				Description:  "The resource ID in the form \"/ipam/[address_block|subnet|range]/<UUID>\".",
+			},
 			// The address in form "a.b.c.d".
 			"address": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "The address in form \"a.b.c.d\".",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"address", "next_available_id"},
+				Description:  "The address in the form \"a.b.c.d\".",
 			},
 
 			// The description for the address object. May contain 0 to 1024 characters. Can include UTF-8.
@@ -114,6 +119,7 @@ func resourceIpamsvcAddress() *schema.Resource {
 			"range": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: "The resource identifier.",
 			},
 
@@ -172,23 +178,21 @@ func resourceIpamsvcAddress() *schema.Resource {
 }
 
 func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*b1ddiclient.Client)
 
 	var diags diag.Diagnostics
-	var addressPath string
+
+	addressPath, diagErr := generateAddressPath(d, NAIP_PATH)
+	if diagErr != nil {
+		return diagErr
+	}
+
+	c := m.(*b1ddiclient.Client)
 
 	names := make([]*models.IpamsvcName, 0)
 	for _, n := range d.Get("names").([]interface{}) {
 		if n != nil {
 			names = append(names, expandIpamsvcName(n.(map[string]interface{})))
 		}
-	}
-
-	addressStr := d.Get("address").(string)
-	if !strings.HasPrefix(addressStr, "ipam") {
-		addressPath = addressStr
-	} else {
-		addressPath = fmt.Sprintf("%s/%s", addressStr, NAIP_PATH)
 	}
 
 	a := &models.IpamsvcAddress{

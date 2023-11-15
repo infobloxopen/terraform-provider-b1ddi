@@ -25,7 +25,7 @@ data "b1ddi_ranges" "rgs" {
   }
 }
 
-// 'ip_count' allows you to the number of next available ips in the resource specified by 'id'
+// 'ip_count' allows you to get the number of next available ips in the resource specified by 'id'
 // If not defined, count would default to 1
 data "b1ddi_next_available_ip" "next_ip_ab" {
   id = data.b1ddi_address_blocks.abs.results.0.id

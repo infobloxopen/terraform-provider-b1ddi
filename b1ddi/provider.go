@@ -149,16 +149,16 @@ func dataSourceSchemaFromResource(resource func() *schema.Resource) *schema.Reso
 	}
 }
 
-// dataSourceSchemaSubnetFromResource -- generates schema for results field in the subnet and next_available_subnet data source
+// dataSourceSchemaOverrideFromResource -- generates schema for results field in the subnet, address, next_available_ip and next_available_subnet data source
 // This function gets the original resource schema
 // - updates the parent and address field schema to remove 'ExactlyOneOf'
 // - injects the ID field in it.
-func dataSourceSchemaSubnetFromResource(resource func() *schema.Resource) *schema.Resource {
+func dataSourceSchemaOverrideFromResource(resource func() *schema.Resource) *schema.Resource {
 	// Get the resource schema
 	resultSchema := dataSourceSchemaFromResource(resource).Schema
-	// Change the 'parent' and 'address' Subnet Resource schema fields to computed.
-	// Terraform runs validation on Schema, if we use the original schema, we will need to define one of 'parent' or 'address'
-	resultSchema["parent"] = &schema.Schema{
+	// Change the 'next_available_id' and 'address' in Address and Subnet Resource schema fields as computed.
+	// Terraform runs validation on Schema, if we use the original schema, we will need to define one of 'next_available_id' or 'address'
+	resultSchema["next_available_id"] = &schema.Schema{
 		Type:        schema.TypeString,
 		Computed:    true,
 		Description: "The resource identifier.",
@@ -166,7 +166,7 @@ func dataSourceSchemaSubnetFromResource(resource func() *schema.Resource) *schem
 	resultSchema["address"] = &schema.Schema{
 		Type:        schema.TypeString,
 		Computed:    true,
-		Description: "The address of the subnet in the form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.",
+		Description: "The address in the form “a.b.c.d/n” where the “/n” may be omitted. When reading, the _address_ field is always in the form “a.b.c.d”.",
 	}
 
 	return &schema.Resource{
