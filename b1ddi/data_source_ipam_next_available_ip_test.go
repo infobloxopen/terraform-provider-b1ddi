@@ -1,6 +1,7 @@
 package b1ddi
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -20,7 +21,20 @@ func TestAccDataSourceIpamsvcNaIP_AB_Count(t *testing.T) {
 						}
 					}
 					data "b1ddi_next_available_ip" "next_ip_ab" {
-  						id = data.b1ddi_address_block.ab.results.0.id
+  						id = "/test/12345"
+  						ip_count = 5
+					}`,
+				ExpectError: regexp.MustCompile("invalid resource ID specified"),
+			},
+			{
+				Config: `
+					data "b1ddi_address_blocks" "ab" {
+						filters = {
+							name = "tf_address_block"
+						}
+					}
+					data "b1ddi_next_available_ip" "next_ip_ab" {
+  						id = data.b1ddi_address_blocks.ab.results.0.id
   						ip_count = 5
 					}`,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -50,7 +64,7 @@ func TestAccDataSourceIpamsvcNaIP_AB_Basic(t *testing.T) {
 						}
 					}	
 					data "b1ddi_next_available_ip" "next_ip_ab" {
-  						id = data.b1ddi_address_block.ab.results.0.id
+  						id = data.b1ddi_address_blocks.ab.results.0.id
 					}`,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.b1ddi_next_available_ip.next_ip_ab", "results.#", "1"),
@@ -122,6 +136,19 @@ func TestAccDataSourceIpamsvcNaIP_Range_Count(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			resourceSubnetNAIPBasicTestStep(),
+			{
+				Config: `
+					data "b1ddi_address_blocks" "ab" {
+						filters = {
+							name = "tf_address_block"
+						}
+					}
+					data "b1ddi_next_available_ip" "next_ip_ab" {
+  						id = ""
+  						ip_count = 5
+					}`,
+				ExpectError: regexp.MustCompile("invalid resource ID specified"),
+			},
 			{
 				Config: `
 					data "b1ddi_ranges" "rng" {

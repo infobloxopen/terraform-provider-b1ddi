@@ -2,6 +2,7 @@ package b1ddi
 
 import (
 	"context"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address_block"
@@ -22,9 +24,10 @@ func dataSourceIpamsvcNaIP() *schema.Resource {
 		ReadContext: dataSourceIpamsvcNaIPRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "An application specific resource identity of a resource",
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^ipam\/(range|subnet|address_block)\/[0-9a-f-].*$`), "invalid resource ID specified"),
+				Description:  "An application specific resource identity of a resource",
 			},
 			// Query parameter
 			"contiguous": {
@@ -59,9 +62,6 @@ func dataSourceIpamsvcNaIPRead(ctx context.Context, d *schema.ResourceData, m in
 	)
 
 	addressStr := d.Get("id").(string)
-	if addressStr == "" || !strings.HasPrefix(addressStr, "ipam") {
-		return diag.Errorf()
-	}
 
 	c := m.(*b1ddiclient.Client)
 

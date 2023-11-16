@@ -44,28 +44,25 @@ resource "b1ddi_address" "example_tf_address" {
   depends_on = [b1ddi_subnet.example_tf_subnet]
 }
 
-# Address can be allocated from a Range via the parent field
+# Address can be allocated from a Range via the 'next_available_id' field
 # Dynamically getting the Next available IP in the Range defined by the address field
 resource "b1ddi_address" "next_available_range_ip" {
   next_available_id = b1ddi_range.tf_acc_test_range.id
   comment = "Example Address automatically allocated from the Range"
   space   = b1ddi_ip_space.example_tf_space.id
-  depends_on = [b1ddi_range.tf_acc_test_range]
 }
 
-# Address can be allocated from an Address block via the parent field
+# Address can be allocated from an Address block via the 'next_available_id' field
 resource "b1ddi_address" "next_available_address_block_ip" {
   next_available_id = b1ddi_address_block.tf_example_address_block.id
   comment = "Example Address automatically allocated from the address_block"
   space   = b1ddi_ip_space.example_tf_space.id
-  depends_on = [b1ddi_address_block.tf_example_address_block]
 }
 
-# Address can be allocated from a subnet via the parent field
-# Dynamically getting the Next available IP in the Subnet defined by the address field
+# Address can be allocated from a subnet via the 'next_available_id' field
 resource "b1ddi_address" "next_available_subnet_ip" {
   next_available_id = b1ddi_subnet.example_tf_subnet.id
   comment = "Example Address automatically allocated from the subnet"
   space   = b1ddi_ip_space.example_tf_space.id
-  depends_on = [b1ddi_subnet.example_tf_subnet, b1ddi_address.next_available_address_block_ip]
+  depends_on = [b1ddi_address.next_available_address_block_ip]
 }

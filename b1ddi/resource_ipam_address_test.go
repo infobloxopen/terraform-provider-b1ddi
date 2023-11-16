@@ -18,9 +18,10 @@ func TestAccResourceAddress_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resourceAddressBasicTestStep(),
 			{
-				ResourceName:      "b1ddi_address.tf_acc_test_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "b1ddi_address.tf_acc_test_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"next_available_id"},
 			},
 		},
 	})
@@ -230,9 +231,10 @@ func TestAccResourceAddress_UpdateSpaceExpectError(t *testing.T) {
 				ExpectError: regexp.MustCompile("changing the value of '[a-z]*' field is not allowed"),
 			},
 			{
-				ResourceName:      "b1ddi_address.tf_acc_test_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "b1ddi_address.tf_acc_test_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"next_available_id"},
 			},
 		},
 	})
@@ -304,9 +306,10 @@ func TestAccResourceAddress_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "b1ddi_address.tf_acc_test_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "b1ddi_address.tf_acc_test_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"next_available_id"},
 			},
 		},
 	})
@@ -320,7 +323,17 @@ func TestAccResourceAddress_NextAvailableIP(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
+					resource "b1ddi_address" "tf_acc_test_address" {
+						next_available_id = "/test/address_block"
+						comment = "This Address is created by terraform provider acceptance test"
+						space = "/test/space"
+					}	
+				`,
+				ExpectError: regexp.MustCompile("invalid resource ID specified)"),
+			},
+			{
+				Config: `
 					resource "b1ddi_ip_space" "tf_acc_test_space" {
   						name = "tf_acc_test_space"
   						comment = "This IP Space is created by terraform provider acceptance test"
@@ -333,15 +346,10 @@ func TestAccResourceAddress_NextAvailableIP(t *testing.T) {
   						comment = "This Subnet is created by terraform provider acceptance test"
 					}
 					resource "b1ddi_address" "tf_acc_test_address" {
-						address = b1ddi_subnet.tf_acc_test_subnet.id
+						next_available_id = b1ddi_subnet.tf_acc_test_subnet.id
 						comment = "This Address is created by terraform provider acceptance test"
 						space = b1ddi_ip_space.tf_acc_test_space.id
-						lifecycle {
-						  ignore_changes = [
-						    address,
-						  ]
-  						}
-					}`),
+					}`,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testCheckIPSpaceExists("b1ddi_ip_space.tf_acc_test_space"),
 					testCheckSubnetExists("b1ddi_subnet.tf_acc_test_subnet"),
@@ -366,9 +374,10 @@ func TestAccResourceAddress_NextAvailableIP(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "b1ddi_address.tf_acc_test_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "b1ddi_address.tf_acc_test_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"next_available_id"},
 			},
 		},
 	})
@@ -395,7 +404,7 @@ func TestAccResourceAddress_NextAvailableIP_FullConfig(t *testing.T) {
   						comment = "This Subnet is created by terraform provider acceptance test"
 					}
 					resource "b1ddi_address" "tf_acc_test_address" {
-						address = b1ddi_subnet.tf_acc_test_subnet.id
+						next_available_id = b1ddi_subnet.tf_acc_test_subnet.id
 						comment = "This Address is created by terraform provider acceptance test"
 						space = b1ddi_ip_space.tf_acc_test_space.id
 						hwaddr = "00:00:00:00:00:00"
@@ -407,11 +416,6 @@ func TestAccResourceAddress_NextAvailableIP_FullConfig(t *testing.T) {
 						tags = {
 							TestType = "Acceptance"
 						}
-						lifecycle {
-						  ignore_changes = [
-							address,
-						  ]
-  						}
 					}`),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testCheckIPSpaceExists("b1ddi_ip_space.tf_acc_test_space"),
@@ -444,9 +448,10 @@ func TestAccResourceAddress_NextAvailableIP_FullConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "b1ddi_address.tf_acc_test_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "b1ddi_address.tf_acc_test_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"next_available_id"},
 			},
 		},
 	})

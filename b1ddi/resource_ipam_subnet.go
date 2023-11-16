@@ -3,13 +3,14 @@ package b1ddi
 import (
 	"context"
 	"fmt"
-	"strings"
+	"regexp"
 	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/subnet"
@@ -39,7 +40,9 @@ func resourceIpamsvcSubnet() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ExactlyOneOf: []string{"address", "next_available_id"},
-				Description:  "The resource ID in the form \"/ipam/[address_block]/<UUID>\".",
+				ForceNew:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^ipam\/address_block\/[0-9a-f-].*$`), "invalid resource ID specified"),
+				Description:  "The resource ID in the form \"/ipam/[address_block]/<UUID>\". This will create the next available resource in the given address block",
 			},
 
 			// Optional: true
@@ -54,7 +57,6 @@ func resourceIpamsvcSubnet() *schema.Resource {
 			// The resource identifier.
 			"parent": {
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 				Description: "The resource identifier.",
 			},
@@ -355,12 +357,6 @@ func resourceIpamsvcSubnet() *schema.Resource {
 }
 
 func resourceIpamsvcSubnetCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-
-	addressPath, diagErr := generateAddressPath(d, NASUBNET_PATH)
-	if diagErr != nil {
-		return diagErr
-	}
-
 	c := m.(*b1ddiclient.Client)
 
 	dhcpOptions := make([]*models.IpamsvcOptionItem, 0)
@@ -377,7 +373,7 @@ func resourceIpamsvcSubnetCreate(ctx context.Context, d *schema.ResourceData, m 
 	}
 
 	s := &models.IpamsvcSubnet{
-		Address:                   swag.String(addressPath),
+		Address:                   swag.String(generateAddressPath(d, NASUBNET_PATH)),
 		AsmConfig:                 expandIpamsvcASMConfig(d.Get("asm_config").([]interface{})),
 		Cidr:                      int64(d.Get("cidr").(int)),
 		Comment:                   d.Get("comment").(string),
@@ -662,24 +658,9 @@ func resourceIpamsvcSubnetDelete(ctx context.Context, d *schema.ResourceData, m 
 	return nil
 }
 
-func generateAddressPath(d *schema.ResourceData, path string) (string, diag.Diagnostics) {
-	var addressPath string
-
-	addressStr := d.Get("next_available_id").(string)
-	if !strings.HasPrefix(addressStr, "ipam") {
-		addressPath = d.Get("address").(string)
-		if addressPath == "" {
-			return "", diag.Errorf("the field 'address' cannot be empty")
-		}
-	} else {
-		if addressPath == "" || !strings.HasPrefix(addressStr, "ipam") {
-			diagErr := diag.Errorf("the field 'next_available_id' cannot be empty and has to be the id associated with an address block")
-			if path == NAIP_PATH {
-				diagErr = diag.Errorf("the field 'next_available_id' cannot be empty and has to be the id associated with one of the following resource:[address block, subnet, range]")
-			}
-			return "", diagErr
-		}
-		addressPath = fmt.Sprintf("%s/%s", addressStr, path)
+func generateAddressPath(d *schema.ResourceData, path string) string {
+	if d.HasChange("next_available_id") {
+		return fmt.Sprintf("%s/%s", d.Get("next_available_id"), path)
 	}
-	return addressPath, nil
+	return d.Get("address").(string)
 }

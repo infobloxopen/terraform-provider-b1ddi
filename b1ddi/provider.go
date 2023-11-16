@@ -158,15 +158,12 @@ func dataSourceSchemaOverrideFromResource(resource func() *schema.Resource) *sch
 	resultSchema := dataSourceSchemaFromResource(resource).Schema
 	// Change the 'next_available_id' and 'address' in Address and Subnet Resource schema fields as computed.
 	// Terraform runs validation on Schema, if we use the original schema, we will need to define one of 'next_available_id' or 'address'
-	resultSchema["next_available_id"] = &schema.Schema{
-		Type:        schema.TypeString,
-		Computed:    true,
-		Description: "The resource identifier.",
-	}
+	delete(resultSchema, "next_available_id")
+
 	resultSchema["address"] = &schema.Schema{
 		Type:        schema.TypeString,
 		Computed:    true,
-		Description: "The address in the form “a.b.c.d/n” where the “/n” may be omitted. When reading, the _address_ field is always in the form “a.b.c.d”.",
+		Description: "The address in the form 'a.b.c.d'.",
 	}
 
 	return &schema.Resource{

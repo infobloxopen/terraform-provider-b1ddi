@@ -3,9 +3,13 @@ package b1ddi
 import (
 	"context"
 	"fmt"
+	"regexp"
+
 	"github.com/go-openapi/swag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	b1ddiclient "github.com/infobloxopen/b1ddi-go-client/client"
 	"github.com/infobloxopen/b1ddi-go-client/ipamsvc/address"
 	"github.com/infobloxopen/b1ddi-go-client/models"
@@ -33,8 +37,10 @@ func resourceIpamsvcAddress() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"address", "next_available_id"},
-				Description:  "The resource ID in the form \"/ipam/[address_block|subnet|range]/<UUID>\".",
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^ipam\/(range|subnet|address_block)\/[0-9a-f-].*$`), "invalid resource ID specified"),
+				Description:  "The resource ID in the form \"/ipam/[address_block|subnet|range]/<UUID>\". This will create the next available resource in the given container",
 			},
 			// The address in form "a.b.c.d".
 			"address": {
@@ -42,7 +48,7 @@ func resourceIpamsvcAddress() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ExactlyOneOf: []string{"address", "next_available_id"},
-				Description:  "The address in the form \"a.b.c.d\".",
+				Description:  "The address in the form 'a.b.c.d'.",
 			},
 
 			// The description for the address object. May contain 0 to 1024 characters. Can include UTF-8.
@@ -102,7 +108,6 @@ func resourceIpamsvcAddress() *schema.Resource {
 			// The resource identifier.
 			"parent": {
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 				Description: "The resource identifier. Can be used to allocate the next available ip for the address object.",
 			},
@@ -118,7 +123,6 @@ func resourceIpamsvcAddress() *schema.Resource {
 			// The resource identifier.
 			"range": {
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 				Description: "The resource identifier.",
 			},
@@ -178,13 +182,7 @@ func resourceIpamsvcAddress() *schema.Resource {
 }
 
 func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-
 	var diags diag.Diagnostics
-
-	addressPath, diagErr := generateAddressPath(d, NAIP_PATH)
-	if diagErr != nil {
-		return diagErr
-	}
 
 	c := m.(*b1ddiclient.Client)
 
@@ -196,7 +194,7 @@ func resourceIpamsvcAddressCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	a := &models.IpamsvcAddress{
-		Address:   swag.String(addressPath),
+		Address:   swag.String(generateAddressPath(d, NAIP_PATH)),
 		Comment:   d.Get("comment").(string),
 		Host:      d.Get("host").(string),
 		Hwaddr:    d.Get("hwaddr").(string),
