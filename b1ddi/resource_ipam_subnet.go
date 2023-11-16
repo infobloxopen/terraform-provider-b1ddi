@@ -42,7 +42,7 @@ func resourceIpamsvcSubnet() *schema.Resource {
 				ExactlyOneOf: []string{"address", "next_available_id"},
 				ForceNew:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^ipam\/address_block\/[0-9a-f-].*$`), "invalid resource ID specified"),
-				Description:  "The resource ID in the form \"/ipam/[address_block]/<UUID>\". This will create the next available resource in the given address block",
+				Description:  "The resource ID in the form \"ipam/[address_block]/<UUID>\". This will create the next available resource in the given address block",
 			},
 
 			// Optional: true
