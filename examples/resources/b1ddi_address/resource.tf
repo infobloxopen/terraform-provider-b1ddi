@@ -45,7 +45,7 @@ resource "b1ddi_address" "example_tf_address" {
 }
 
 # Address can be allocated from a Range via the 'next_available_id' field
-# Dynamically getting the Next available IP in the Range defined by the address field
+# Dynamically getting the Next available IP in the Range defined by the next_available_id field
 resource "b1ddi_address" "next_available_range_ip" {
   next_available_id = b1ddi_range.tf_acc_test_range.id
   comment = "Example Address automatically allocated from the Range"
@@ -60,6 +60,7 @@ resource "b1ddi_address" "next_available_address_block_ip" {
 }
 
 # Address can be allocated from a subnet via the 'next_available_id' field
+# depends_on added to control the execution order to avoid both NaIP Subnet and NaIP Address Block from competing for the same address
 resource "b1ddi_address" "next_available_subnet_ip" {
   next_available_id = b1ddi_subnet.example_tf_subnet.id
   comment = "Example Address automatically allocated from the subnet"
